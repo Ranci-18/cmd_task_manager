@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::fs;
-use std::io::{self, Write};
+use std::io::Write;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut tasks = load_tasks()?;
 
-    match &cli = Cli.command {
+    match cli.command {
         Commands::Add { task } => {
             tasks.push(task.clone());
             save_tasks(&tasks)?;
@@ -35,9 +35,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::List => {
             if tasks.is_empty() {
                 println!("No tasks yet!");
-            }
-            for (i, task) in tasks.iter().enumerate() {
-                println!("{}: {}", i + 1, task);
             } else {
                 println!("Tasks:");
                 for (i, task) in tasks.iter().enumerate() {
@@ -46,28 +43,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Commands::Done { index } => {
-            if let Some(task) = tasks.get_mut(*index - 1) {
+            if let Some(task) = tasks.get_mut(index - 1) {
                 *task = format!("[Done] {}", task);
                 save_tasks(&tasks)?;
-                println!("Marked as {} as done.", index);
+                println!("Marked task {} as done.", index);
             } else {
                 println!("Invalid task index.");
             }
         }
     }
-    ok(())
+    Ok(())
 }
 
 fn load_tasks() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let contents = fs::read_to_string("tasks.txt").unwrap_or_default();
     let tasks = contents.lines().map(|s| s.to_string()).collect();
-    ok(tasks)
+    Ok(tasks)
 }
 
-fn save_tasks(tasks: &Vec<String>) -> Result<(), Box<dyn std:error:Error>> {
+fn save_tasks(tasks: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
     let mut file = fs::File::create("tasks.txt")?;
     for task in tasks {
         writeln!(file, "{}", task)?;
     }
-    ok(())
+    Ok(())
 }
